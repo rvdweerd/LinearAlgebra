@@ -6,7 +6,22 @@
 #include <numeric>
 #include <iterator>
 
-void LinA::RowOp(LinA::Matrix& A,int multiplier, int subtract, int into)
+LinA::Matrix LinA::Zeros(int m, int n)
+{
+	return LinA::Matrix(m,n,0);
+}
+
+LinA::Matrix LinA::Eye(int n)
+{
+	LinA::Matrix X = LinA::Matrix(n, n, 0);
+	for (size_t i = 0; i < n; i++)
+	{
+		X.A[i][i] = 1;
+	}
+	return X;
+}
+
+void LinA::RowOp(LinA::Matrix& A,float multiplier, int subtract, int into)
 {
 	std::transform(A.A[into - 1].begin(), A.A[into - 1].end(),							// transform this row (elimination)
 		A.A[subtract - 1].begin(),										// by subtracting elements from this row
@@ -54,6 +69,18 @@ LinA::Matrix::Matrix(std::string str)
 	m = y+1;
 }
 
+LinA::Matrix::Matrix(int m, int n, float val)
+	:
+	m(m),
+	n(n)
+{
+	std::vector<float> row(n, val);
+	for (size_t y = 0; y < m; y++)
+	{
+		A.push_back(row);
+	}
+}
+
 LinA::Matrix LinA::Matrix::Transpose()
 {
 	Matrix A_T;
@@ -72,7 +99,7 @@ LinA::Matrix LinA::Matrix::Transpose()
 	return A_T;
 }
 
-void LinA::Matrix::RowOp(int multiplier, int subtract, int into)
+void LinA::Matrix::RowOp(float multiplier, int subtract, int into)
 {
 	std::transform( A[into - 1].begin(), A[into - 1].end(),							// transform this row (elimination)
 					A[subtract - 1].begin(),										// by subtracting elements from this row
@@ -86,6 +113,26 @@ void LinA::Matrix::RowOp(int multiplier, int subtract, int into)
 void LinA::Matrix::RowExchange(int row1, int row2)
 {
 	std::swap(A[row1 - 1], A[row2 - 1]);
+}
+
+LinA::Matrix LinA::Matrix::RowReduce(int col)
+{
+	LinA::Matrix E = LinA::Eye(m);
+
+	if (A[col - 1][col - 1] > 1e-4) // pivot value acceptable
+	{
+		for (size_t i = col; i < m; i++)
+		{
+			//if (A[i - 1][col - 1] > 1e-4)
+			{
+				float m = A[i][col - 1] / A[col - 1][col - 1];
+				std::cout << "m=" << m << ", ";
+				RowOp(m, col , (int)i+1);
+				E.A[i][(int)col - 1] = -m;
+			}
+		}
+	}
+	return E;
 }
 
 
