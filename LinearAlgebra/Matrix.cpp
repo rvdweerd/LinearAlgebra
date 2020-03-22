@@ -21,6 +21,24 @@ LinA::Matrix LinA::Eye(int n)
 	return X;
 }
 
+LinA::Matrix LinA::Transpose(const Matrix& A)
+{
+	Matrix A_T;
+	A_T.m = A.n;
+	A_T.n = A.m;
+	std::vector<float> v;
+	for (size_t col = 0; col < A.n; col++)
+	{
+		for (size_t row = 0; row < A.m; row++)
+		{
+			v.push_back(A.A[row][col]);
+		}
+		A_T.A.push_back(v);
+		v.clear();
+	}
+	return A_T;
+}
+
 void LinA::RowOp(LinA::Matrix& A,float multiplier, int subtract, int into)
 {
 	std::transform(A.A[into - 1].begin(), A.A[into - 1].end(),			// transform this row (elimination)
@@ -55,6 +73,23 @@ LinA::Matrix LinA::RowReduce(Matrix& A, int col)
 		}
 	}
 	return E;
+}
+
+LinA::Matrix LinA::InverseEliminationMatrix(const Matrix& E)
+{
+	LinA::Matrix E_inv(E);
+	for (size_t i = 1; i <= E.m; i++)
+	{
+		for (size_t j = 1; j < i; j++)
+		{
+			float entry = E_inv.A[i - 1][j - 1];
+			if (std::abs(entry) > 1e-4)
+			{
+				E_inv.A[i - 1][j - 1] = -E_inv.A[i - 1][j - 1];
+			}
+		}
+	}
+	return E_inv;
 }
 
 LinA::Matrix::Matrix(std::string str)
@@ -100,61 +135,6 @@ LinA::Matrix::Matrix(int m, int n, float val)
 		A.push_back(row);
 	}
 }
-
-LinA::Matrix LinA::Matrix::Transpose()
-{
-	Matrix A_T;
-	A_T.m = n;
-	A_T.n = m;
-	std::vector<float> v;
-	for (size_t col = 0; col < n; col++)
-	{
-		for (size_t row = 0; row < m; row++)
-		{
-			v.push_back(A[row][col]);
-		}
-		A_T.A.push_back(v);
-		v.clear();
-	}
-	return A_T;
-}
-
-void LinA::Matrix::RowOp(float multiplier, int subtract, int into)
-{
-	std::transform( A[into - 1].begin(), A[into - 1].end(),							// transform this row (elimination)
-					A[subtract - 1].begin(),										// by subtracting elements from this row
-					A[into-1].begin(), [&multiplier](float& val1, float& val2)		// using the multiplier
-					{
-						return val1 - val2 * multiplier; 
-					});
-	std::cout << '\n';
-}
-
-void LinA::Matrix::RowExchange(int row1, int row2)
-{
-	std::swap(A[row1 - 1], A[row2 - 1]);
-}
-
-LinA::Matrix LinA::Matrix::RowReduce(int col)
-{
-	LinA::Matrix E = LinA::Eye(m);
-
-	if (A[col - 1][col - 1] > 1e-4) // pivot value acceptable
-	{
-		for (size_t i = col; i < m; i++)
-		{
-			//if (A[i - 1][col - 1] > 1e-4)
-			{
-				float m = A[i][col - 1] / A[col - 1][col - 1];
-				std::cout << "m=" << m << ", ";
-				RowOp(m, col , (int)i+1);
-				E.A[i][(int)col - 1] = -m;
-			}
-		}
-	}
-	return E;
-}
-
 
 std::ostream& LinA::operator<<(std::ostream& stream, LinA::Matrix A)
 {
