@@ -23,9 +23,9 @@ LinA::Matrix LinA::Eye(int n)
 
 void LinA::RowOp(LinA::Matrix& A,float multiplier, int subtract, int into)
 {
-	std::transform(A.A[into - 1].begin(), A.A[into - 1].end(),							// transform this row (elimination)
+	std::transform(A.A[into - 1].begin(), A.A[into - 1].end(),			// transform this row (elimination)
 		A.A[subtract - 1].begin(),										// by subtracting elements from this row
-		A.A[into - 1].begin(), [&multiplier](float& val1, float& val2)		// using the multiplier
+		A.A[into - 1].begin(), [&multiplier](float& val1, float& val2)	// using the multiplier
 		{
 			return val1 - val2 * multiplier;
 		});
@@ -35,6 +35,26 @@ void LinA::RowOp(LinA::Matrix& A,float multiplier, int subtract, int into)
 void LinA::RowExchange(LinA::Matrix& A, int row1, int row2)
 {
 	std::swap(A.A[row1 - 1], A.A[row2 - 1]);
+}
+
+LinA::Matrix LinA::RowReduce(Matrix& A, int col)
+{
+	LinA::Matrix E = LinA::Eye(A.m);
+
+	if (A.A[col - 1][col - 1] > 1e-4) // pivot value acceptable
+	{
+		for (size_t i = col; i < A.m; i++)
+		{
+			//if (A[i - 1][col - 1] > 1e-4)
+			{
+				float m = A.A[i][col - 1] / A.A[col - 1][col - 1];
+				std::cout << "m=" << m << ", ";
+				RowOp(A,m, col, (int)i + 1);
+				E.A[i][(int)col - 1] = -m;
+			}
+		}
+	}
+	return E;
 }
 
 LinA::Matrix::Matrix(std::string str)

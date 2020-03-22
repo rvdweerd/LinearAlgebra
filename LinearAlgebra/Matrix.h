@@ -12,8 +12,12 @@ namespace LinA
 		Matrix(int m, int n, float val);
 		Matrix()
 		{
-			std::cout << "default ctor\n";
-		}// = default;
+			//std::cout << "default ctor\n";
+		}
+		~Matrix()
+		{
+			//std::cout << "default dtor\n";
+		}
 		Matrix Transpose();
 		void RowOp(float multiplier, int subtract, int into);
 		void RowExchange(int row1, int row2);
@@ -34,6 +38,7 @@ namespace LinA
 	static Matrix Eye(int n);
 	void RowOp(Matrix& A, float multiplier, int subtract, int into);
 	void RowExchange(Matrix& A, int row1, int row2);
+	Matrix RowReduce(Matrix& A, int col);
 }
 
 
