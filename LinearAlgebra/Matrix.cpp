@@ -6,6 +6,22 @@
 #include <numeric>
 #include <iterator>
 
+void LinA::RowOp(LinA::Matrix& A,int multiplier, int subtract, int into)
+{
+	std::transform(A.A[into - 1].begin(), A.A[into - 1].end(),							// transform this row (elimination)
+		A.A[subtract - 1].begin(),										// by subtracting elements from this row
+		A.A[into - 1].begin(), [&multiplier](float& val1, float& val2)		// using the multiplier
+		{
+			return val1 - val2 * multiplier;
+		});
+
+}
+
+void LinA::RowExchange(LinA::Matrix& A, int row1, int row2)
+{
+	std::swap(A.A[row1 - 1], A.A[row2 - 1]);
+}
+
 LinA::Matrix::Matrix(std::string str)
 {
 	std::istrstream stream_in(str.c_str());
@@ -66,6 +82,12 @@ void LinA::Matrix::RowOp(int multiplier, int subtract, int into)
 					});
 	std::cout << '\n';
 }
+
+void LinA::Matrix::RowExchange(int row1, int row2)
+{
+	std::swap(A[row1 - 1], A[row2 - 1]);
+}
+
 
 std::ostream& LinA::operator<<(std::ostream& stream, LinA::Matrix A)
 {
