@@ -23,6 +23,10 @@ namespace LinA
 	
 	std::ostream& operator<<(std::ostream& stream, LinA::Matrix A);
 	Matrix operator*(LinA::Matrix lhs, LinA::Matrix rhs);
+	Matrix operator*(LinA::Matrix lhs, float rhs);
+	Matrix operator-(LinA::Matrix lhs, LinA::Matrix rhs);
+	Matrix operator+(LinA::Matrix lhs, LinA::Matrix rhs);
+
 	
 	Matrix Transpose(const Matrix& A);
 	void RowOp(Matrix& A, float multiplier, int subtract, int into);

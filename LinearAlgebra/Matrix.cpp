@@ -18,7 +18,7 @@ LinA::Matrix::Matrix(std::string str)
 	{
 		if (s == ";")
 		{
-			n = x;
+			//n = x;
 			x = 0;
 			A.push_back(row);
 			row.clear();
@@ -37,6 +37,7 @@ LinA::Matrix::Matrix(std::string str)
 	}
 	A.push_back(row);
 	m = y+1;
+	n = A[0].size();
 }
 
 LinA::Matrix::Matrix(int m, int n, float val)
@@ -106,6 +107,48 @@ LinA::Matrix LinA::operator*(LinA::Matrix lhs, LinA::Matrix rhs)
 		return Mret;
 	}
 	return LinA::Matrix();
+}
+
+LinA::Matrix LinA::operator*(LinA::Matrix lhs, float rhs)
+{
+	for (auto& vec : lhs.A)
+	{
+		for (auto& v : vec)
+		{
+			v *= rhs;
+		}
+	}
+	return lhs;
+}
+
+LinA::Matrix LinA::operator-(LinA::Matrix lhs, LinA::Matrix rhs)
+{
+	assert(lhs.A.size() == rhs.A.size());
+	assert(lhs.A[0].size() == rhs.A[0].size());
+	for (size_t row = 0; row<lhs.A.size();row++)
+	{
+		for (size_t col = 0; col < lhs.A[0].size(); col++)
+		{
+			lhs.A[row][col] -= rhs.A[row][col];
+		}
+	}
+	return lhs;
+	return Matrix();
+}
+
+LinA::Matrix LinA::operator+(LinA::Matrix lhs, LinA::Matrix rhs)
+{
+	assert(lhs.A.size() == rhs.A.size());
+	assert(lhs.A[0].size() == rhs.A[0].size());
+	for (size_t row = 0; row < lhs.A.size(); row++)
+	{
+		for (size_t col = 0; col < lhs.A[0].size(); col++)
+		{
+			lhs.A[row][col] += rhs.A[row][col];
+		}
+	}
+	return lhs;
+	return Matrix();
 }
 
 LinA::Matrix LinA::Transpose(const Matrix& A)

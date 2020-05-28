@@ -1,14 +1,14 @@
 #include <iostream>
 #include "Matrix.h"
+#include <cassert>
 //#include <Eigen/Dense>
 //#include <Eigen/src/LU/InverseImpl.h>
 
-
-int main()
+void test()
 {
 	{
 		//LinA::Matrix A(" 1  1 1 ; 1 1 2 ; -1 1 3 ");
-		LinA::Matrix A(" 1 4 -1 ; -2 0 1 ; -12 4 5 ");
+		LinA::Matrix A(" 1 4 -1 ; -2 1 1 ; -12 4 5 ");
 		LinA::Matrix AT;
 		AT = LinA::Transpose(A);
 		//A = AT * A;
@@ -75,4 +75,24 @@ int main()
 		//std::cout << "Matrix A: " << A;
 	}
 	std::cin.get();
+}
+
+std::pair<LinA::Matrix,LinA::Matrix> ProjectVec(LinA::Matrix b, LinA::Matrix a) // project vector b onto vector a, returns { p , e }  
+{
+	assert(a.n == 1 && b.n == 1);
+	assert(a.m == b.m);
+	LinA::Matrix aT = Transpose(a);
+	float x_hat = (aT * b).A[0][0] / (aT * a).A[0][0];
+	LinA::Matrix p = a * x_hat;
+	LinA::Matrix e = b-p;
+	return { p,e };
+}
+
+
+int main()
+{
+	LinA::Matrix a(" 1 ; 1  ");
+	LinA::Matrix b(" 0 ; 1  ");
+	auto f = ProjectVec(b,a);
+	auto g = a * b;
 }
