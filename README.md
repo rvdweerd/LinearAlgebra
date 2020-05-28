@@ -10,4 +10,6 @@ Working on:
 * Eigenvalue calculation using QR iteration with shifts
 * SVD
 
+Some examples:
+
 ![QR example](LinearAlgebra_QRscreenshot.png)
