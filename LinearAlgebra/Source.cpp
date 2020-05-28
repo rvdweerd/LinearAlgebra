@@ -88,11 +88,71 @@ std::pair<LinA::Matrix,LinA::Matrix> ProjectVec(LinA::Matrix b, LinA::Matrix a) 
 	return { p,e };
 }
 
+LinA::Matrix GetColumn(const LinA::Matrix& A, int n)
+{
+	assert(A.A.size() > 0);
+	assert(A.A[0].size() > 0);
+	assert(A.n >= n);
+	LinA::Matrix col(A.m, 1, 0);
+	for (size_t row = 0; row < A.m; row++)
+	{
+		col.A[row][0] = A.A[row][n-1];
+	}
+	return col;
+}
+float VecNorm_L2(LinA::Matrix vec)
+{
+	assert(vec.m == 1 || vec.n == 1);
+	if (vec.n == 1)
+	{
+		return sqrt((Transpose(vec)*vec).A[0][0]);
+	}
+	if (vec.m == 1)
+	{
+		return sqrt((vec * Transpose(vec)).A[0][0]);
+	}
+	return -1;
+}
+void ReplaceColumn(LinA::Matrix& A, const LinA::Matrix& sourceCol, int n)
+{
+	assert(A.m == sourceCol.m);
+	assert(n <= A.n);
+	for (size_t col = 0; col < A.m; col++)
+	{
+		A.A[col][n - 1] = sourceCol.A[col][0];
+	}
+}
+std::pair<LinA::Matrix, LinA::Matrix> QR(LinA::Matrix A)
+{
+	assert(A.m == A.n);
+	assert(A.m > 1);
+	LinA::Matrix Q(A.m, A.n, 0);
+	LinA::Matrix col0 = GetColumn(A, 1);
+	col0 = col0 * (1 / VecNorm_L2(col0));
+	ReplaceColumn(Q, col0, 1);
+	for (int i = 2; i <= A.n; i++)
+	{
+		LinA::Matrix Ai = GetColumn(A, i);
+		for (int j = 1; j < i;j++)
+		{
+			LinA::Matrix Qj = GetColumn(Q, j);
+			Ai = Ai - Qj * (Transpose(Ai) * Qj);
+		}
+		Ai = Ai * (1 / VecNorm_L2(Ai));
+		ReplaceColumn(Q, Ai, i);
+	}
+	LinA::Matrix R = Transpose(Q) * A;
+	return { Q,R };
+
+}
 
 int main()
 {
 	LinA::Matrix a(" 1 ; 1  ");
 	LinA::Matrix b(" 0 ; 1  ");
 	auto f = ProjectVec(b,a);
-	auto g = a * b;
+	
+	LinA::Matrix A(" 1 2 3 ; 3 4 3 ; 1 -1 1 ");
+	auto g = QR(A);
+	std::cout << g.first;
 }

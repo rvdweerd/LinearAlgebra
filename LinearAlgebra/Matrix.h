@@ -19,7 +19,7 @@ namespace LinA
 	};
 
 	static Matrix Zeros(int m, int n);
-	static Matrix Eye(int n);
+	Matrix Eye(int n);
 	
 	std::ostream& operator<<(std::ostream& stream, LinA::Matrix A);
 	Matrix operator*(LinA::Matrix lhs, LinA::Matrix rhs);
