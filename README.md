@@ -19,13 +19,13 @@ Some examples:
 
 ![QR example](QR_iteration_demo.png)
 
-Interface & free functions semantis for LinA class:
+Interface & free functions semantics for LinA class:
 ```cpp
   LinA::Matrix A(" 1 2 3 ; 3 4 3 ; 1 -1 1 ");
-	auto g = QR(A);
-	std::cout << "QR decomposition of A.\n";
-	std::cout << "A: \n" << A;
-	std::cout << "Q: \n" << g.first;
-	std::cout << "R: \n" << g.second;
-	auto e = Eig(A,1e-3);
+  auto g = QR(A);
+  std::cout << "QR decomposition of A.\n";
+  std::cout << "A: \n" << A;
+  std::cout << "Q: \n" << g.first;
+  std::cout << "R: \n" << g.second;
+  auto e = Eig(A,1e-3);
 ```
