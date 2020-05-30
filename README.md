@@ -18,7 +18,8 @@ Working on:
 Some examples:
 
 ![QR example](QR_iteration_demo.png)
-Semantics example
+
+Interface & free functions semantis for LinA class:
 ```cpp
   LinA::Matrix A(" 1 2 3 ; 3 4 3 ; 1 -1 1 ");
 	auto g = QR(A);
