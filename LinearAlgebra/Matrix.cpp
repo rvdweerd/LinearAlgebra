@@ -1,6 +1,7 @@
 #include "Matrix.h"
 #include <strstream>
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 #include <ostream>
 #include <numeric>
@@ -69,12 +70,13 @@ LinA::Matrix LinA::Eye(int n)
 
 std::ostream& LinA::operator<<(std::ostream& stream, LinA::Matrix A)
 {
+	stream.precision(3);
 	stream << '\n';
 	for (size_t row = 0; row < A.m; row++)
 	{
 		for (size_t col = 0; col < A.n; col++)
 		{
-			stream << " " << A.A[row][col] << ", ";
+			stream << " " << std::setw(10) << A.A[row][col] << ", ";
 		}
 		stream << "\n";
 	}

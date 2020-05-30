@@ -8,7 +8,9 @@ void test()
 {
 	{
 		//LinA::Matrix A(" 1  1 1 ; 1 1 2 ; -1 1 3 ");
-		LinA::Matrix A(" 1 4 -1 ; -2 1 1 ; -12 4 5 ");
+		//LinA::Matrix A(" 1 4 -1 ; -2 1 1 ; -12 4 5 ");
+		LinA::Matrix A(" 1 2 3 ; 3 4 3 ; 1 -1 1 ");
+
 		LinA::Matrix AT;
 		AT = LinA::Transpose(A);
 		//A = AT * A;
@@ -146,13 +148,49 @@ std::pair<LinA::Matrix, LinA::Matrix> QR(LinA::Matrix A)
 
 }
 
+LinA::Matrix Eig(LinA::Matrix A, float accuracy)
+{
+	assert(A.m == A.n);
+	while (true)
+	{
+		auto Fi = QR(A);
+		LinA::Matrix Qi = Fi.first;
+		LinA::Matrix Ri = Fi.second;
+		LinA::Matrix Aip = Ri * Qi;
+		float eps1 = A.A[0][0] - Aip.A[0][0];
+		A = Aip;
+		if (abs(eps1) < 1e-5) break;
+	}
+	LinA::Matrix eig(A.m, 1,0);
+	for (size_t i = 0; i < A.m; i++)
+	{
+		eig.A[i][0] = A.A[i][i];
+	}
+	std::cout << "Eigenvalues: \n" << eig;
+	return eig;
+}
+
 int main()
 {
+	//test();
 	LinA::Matrix a(" 1 ; 1  ");
 	LinA::Matrix b(" 0 ; 1  ");
 	auto f = ProjectVec(b,a);
 	
 	LinA::Matrix A(" 1 2 3 ; 3 4 3 ; 1 -1 1 ");
 	auto g = QR(A);
-	std::cout << g.first;
+	std::cout << "QR decomposition of A.\n";
+	std::cout << "A: \n" << A;
+	std::cout << "Q: \n" << g.first;
+	std::cout << "R: \n" << g.second;
+	std::cin.get();
+
+	auto e = Eig(A,1e-5);
+	std::cin.get();
+	
+
+	std::cin.get();
+
+
+
 }
