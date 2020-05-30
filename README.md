@@ -8,6 +8,7 @@ Implemented so far:
 * Eigenvalue calculation using QR iteration (no shifts yet)
 
 Working on:
+* Krylov/GMRES for Ax=b
 * Eigenvectors
 * Diagonalization
 * SVD
