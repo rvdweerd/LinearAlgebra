@@ -5,7 +5,7 @@ Implemented so far:
 * Basic Matrix & Vector operations
 * LU decomposition
 * QR decomposition
-* Eigenvalue calculation using QR iteration (no shifts yet)
+* Eigenvalue calculation using QR iteration (no Hessenberg reduction / shifts yet)
 
 Working on:
 * Krylov/GMRES for Ax=b
