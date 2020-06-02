@@ -8,10 +8,11 @@ Implemented so far:
 * Eigenvalue calculation using QR iteration (no Hessenberg reduction / shifts yet)
 
 Working on:
+* Inverse (Gauss/Jordan)
 * Krylov/GMRES for Ax=b
 * Eigenvectors
 * Diagonalization
-* SVD
+* Full SVD
 * Pseudoinverse
 * Vector & Matrix norms
 * ...
