@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <tuple>
 
 namespace LinA
 {
@@ -52,8 +53,9 @@ namespace LinA
 	// Decomposition functions
 	std::pair<Matrix, Matrix> QR(Matrix A);
 	Matrix Eig(Matrix A, float precision);
-	std::pair<Matrix, Matrix> LU(Matrix A, bool printLU = true);
-
+	std::tuple<Matrix, Matrix,Matrix> LU(Matrix A, bool printLU = true); // returns {L,U,E} (E=Elimination matrix)
+	std::tuple<Matrix, Matrix> RREF(Matrix A); // returns {rref(A),E}
+	Matrix Inverse(Matrix A);
 }
 
 

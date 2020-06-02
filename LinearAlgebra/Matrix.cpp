@@ -69,13 +69,20 @@ LinA::Matrix LinA::Eye(int n)
 
 std::ostream& LinA::operator<<(std::ostream& stream, LinA::Matrix A)
 {
-	stream.precision(4);
+	stream.precision(2);
 	stream << '\n';
 	for (size_t row = 0; row < A.m; row++)
 	{
 		for (size_t col = 0; col < A.n; col++)
 		{
-			stream << " " << std::setw(10) << A.A[row][col] << ", ";
+			if (abs(A.A[row][col]) > LinA::accuracy)
+			{
+				stream << " " << std::setw(10) << A.A[row][col] << ", ";
+			}
+			else
+			{
+				stream << " " << std::setw(10) << 0.0f << ", ";
+			}
 		}
 		stream << "\n";
 	}
@@ -375,15 +382,15 @@ LinA::Matrix LinA::Eig(LinA::Matrix A, float precision)
 		eig.A[i][0] = A.A[i][i];
 	}
 	//std::cout << "Eigenvalues: \n" << eig;
-	std::cout << "Eigenvalue caluclation useing "<< count << " QR iterations to reach precision " << precision << "\n";
+	std::cout << "Eigenvalue calculation using "<< count << " QR iterations to reach precision " << precision << "\n";
 	return eig;
 }
-std::pair<LinA::Matrix,LinA::Matrix> LinA::LU(LinA::Matrix A, bool printLU )
+std::tuple<LinA::Matrix, LinA::Matrix, LinA::Matrix> LinA::LU(LinA::Matrix A, bool printLU)
 {
 	LinA::Matrix A_cpy = A;
 	std::vector<LinA::Matrix> vecE; // elimination matrices container
 	std::vector<LinA::Matrix> vecE_inverse;
-	
+
 	for (int i = 1; i <= A.m; i++)
 	{
 		std::pair<LinA::Matrix, LinA::Matrix> E_i = RowReduce(A, i);
@@ -393,52 +400,53 @@ std::pair<LinA::Matrix,LinA::Matrix> LinA::LU(LinA::Matrix A, bool printLU )
 	}
 
 	LinA::Matrix L = LinA::Eye(A.n);
-	LinA::Matrix U = A;// _cpy;
-	
+	//LinA::Matrix U = A;// _cpy;
+	LinA::Matrix Elim = LinA::Eye(A.n);
 	for (auto it = vecE_inverse.rbegin(); it != vecE_inverse.rend(); ++it)
 	{
 		//std::cout << "Multipltying " << *it;
 		L = *it * L;
 	}
-	//for (auto it = vecE_inverse.rbegin(); it != vecE_inverse.rend(); ++it)
-	//{
-	//	//std::cout << "Multipltying " << *it;
-	//	U = *it * U;
-	//}
+	for (auto it = vecE.begin(); it != vecE.end(); ++it)
+	{
+		//std::cout << "Multipltying " << *it;
+		Elim = *it * Elim;
+	}
+
 	if (printLU)
 	{
 		std::cout << "L\n" << L;
-		std::cout << "U\n" << U;
+		std::cout << "U\n" << A; // note: A has been transformed to U
 	}
-	std::cout << "contiuning with rref\n";
+	return std::make_tuple(L, A, Elim);
+}
+std::tuple<LinA::Matrix, LinA::Matrix> LinA::RREF(Matrix A)
+{
+	LinA::Matrix L, U, Elim;
+	std::tie(L, U, Elim) = LinA::LU(A, false);
+
 	auto pair = LinA::RowReduceUp(U, 3);
-	//std::cout << U;
-	vecE.push_back(pair.first);
-	vecE_inverse.push_back(pair.second);
-
+	Elim = pair.first * Elim;
+	
 	pair = LinA::RowReduceUp(U, 2);
-	//std::cout << U;
-	vecE.push_back(pair.first);
-	vecE_inverse.push_back(pair.second);
+	Elim = pair.first * Elim;
+	
 
+	// normalize diagonals
 	LinA::Matrix S = LinA::Eye(3);
 	S.A[0][0] = 1 / U.A[0][0];
 	S.A[1][1] = 1 / U.A[1][1];
 	S.A[2][2] = 1 / U.A[2][2];
+	Elim = S * Elim;
 
-	LinA::Matrix A_inv = LinA::Eye(3);
-	for (auto m : vecE)
-	{
-		A_inv = m * A_inv;
-	}
-	std::cout << S*A_inv;
-
-	std::cout << "A * A_inv = " << A_cpy * S * A_inv;
-	std::cout << "A_inv * A = " << S * A_inv * A_cpy;
-
-	return { L,U };
+	return std::make_tuple( Elim*A,Elim );
 }
-
+LinA::Matrix LinA::Inverse(LinA::Matrix A)
+{
+	LinA::Matrix Rref, Elim;
+	std::tie(Rref, Elim) = LinA::RREF(A);
+	return Elim;
+}
 
 
 LinA::Matrix LinA::SingularValues(LinA::Matrix A, float precision)
@@ -455,9 +463,10 @@ LinA::Matrix LinA::SingularValues(LinA::Matrix A, float precision)
 }
 float LinA::Det(const Matrix& A)
 {
-	auto LUpair = LU(A, false);
-	float DetU = LinA::DetOfTriangular(LUpair.second);
-	std::pair<LinA::Matrix, int> L_fixedPair = LinA::FixLowTriangular(LUpair.first);
+	LinA::Matrix L, U, Elim;
+	std::tie(L, U, Elim) = LinA::LU(A, false);
+	float DetU = LinA::DetOfTriangular(U);
+	std::pair<LinA::Matrix, int> L_fixedPair = LinA::FixLowTriangular(L);
 	float DetL = LinA::DetOfTriangular(L_fixedPair.first) * (1 + L_fixedPair.second % 2 * -2);
 	std::cout << "Determinant of U = " << DetU << std::endl;
 	std::cout << "Determinant of L = " << DetL << std::endl;
