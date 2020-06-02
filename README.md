@@ -7,9 +7,9 @@ Implemented so far:
 * LU decomposition
 * QR decomposition
 * Eigenvalue calculation using QR iteration (no Hessenberg reduction / shifts yet)
+* Inverse (Gauss/Jordan)
 
 Working on:
-* Inverse (Gauss/Jordan)
 * Krylov/GMRES for Ax=b
 * Eigenvectors
 * Diagonalization
@@ -20,7 +20,7 @@ Working on:
 
 Some examples:
 
-![QR example](QR_iter_demo.png)
+![Tests](LinAlg_tests.png)
 
 Interface & free functions semantics for LinA class:
 ```cpp
