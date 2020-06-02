@@ -1,5 +1,6 @@
 # LinearAlgebra (Work-in-Progress)
-Own implementation of Matrix class and LinAlg algos, dev while following Gilbert Strang's 18.06 / 18.065
+Own implementation of Matrix class and numerical LinAlg algos, dev while following Gilbert Strang's 18.06 / 18.065.
+(Numerical Linear Algebra by Trefethen/Bau as main reference)
 
 Implemented so far:
 * Basic Matrix & Vector operations
