@@ -18,32 +18,41 @@ namespace LinA
 		size_t n = 0; // number of columns
 	};
 
+	// Basic matrix factories
 	static Matrix Zeros(int m, int n);
 	Matrix Eye(int n);
 	
+	// Operator overloads
 	std::ostream& operator<<(std::ostream& stream, LinA::Matrix A);
 	Matrix operator*(LinA::Matrix lhs, LinA::Matrix rhs);
 	Matrix operator*(LinA::Matrix lhs, float rhs);
 	Matrix operator-(LinA::Matrix lhs, LinA::Matrix rhs);
 	Matrix operator+(LinA::Matrix lhs, LinA::Matrix rhs);
 
-	
+	// Basic matrix operations
 	Matrix Transpose(const Matrix& A);
 	void RowOp(Matrix& A, float multiplier, int subtract, int into);
 	void RowExchange(Matrix& A, int row1, int row2);
 	std::pair<Matrix, Matrix> RowReduce(Matrix& A, int col);
+	std::pair<Matrix, Matrix> RowReduceUp(Matrix& A, int col);
 	Matrix InverseEliminationMatrix(const Matrix& E);
 	std::pair<Matrix, int> FixLowTriangular(const Matrix& E);
-	float DetOfTriangular(const Matrix& E);
-
 	std::pair<Matrix, Matrix> ProjectVec(Matrix b, Matrix a);
 	Matrix GetColumn(const Matrix& A, int n);
-	float VecNorm_L2(Matrix vec);
 	void ReplaceColumn(Matrix& A, const Matrix& sourceCol, int n);
+	
+	// Norms
+	float VecNorm_L2(Matrix vec);
+
+	// Matrix properties	
+	Matrix SingularValues(Matrix A, float precision);
+	float Det(const Matrix& A);
+	float DetOfTriangular(const Matrix& E);
+	
+	// Decomposition functions
 	std::pair<Matrix, Matrix> QR(Matrix A);
 	Matrix Eig(Matrix A, float precision);
-
-	Matrix SingularValues(Matrix A, float precision);
+	std::pair<Matrix, Matrix> LU(Matrix A, bool printLU = true);
 
 }
 

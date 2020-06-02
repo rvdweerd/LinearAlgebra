@@ -7,6 +7,7 @@
 #include <numeric>
 #include <iterator>
 #include <cassert>
+#include <tuple>
 
 LinA::Matrix::Matrix(std::string str)
 {
@@ -40,7 +41,6 @@ LinA::Matrix::Matrix(std::string str)
 	m = y+1;
 	n = A[0].size();
 }
-
 LinA::Matrix::Matrix(int m, int n, float val)
 	:
 	m(m),
@@ -57,7 +57,6 @@ LinA::Matrix LinA::Zeros(int m, int n)
 {
 	return LinA::Matrix(m,n,0);
 }
-
 LinA::Matrix LinA::Eye(int n)
 {
 	LinA::Matrix X = LinA::Matrix(n, n, 0);
@@ -83,7 +82,6 @@ std::ostream& LinA::operator<<(std::ostream& stream, LinA::Matrix A)
 	stream << '\n';
 	return stream;
 }
-
 LinA::Matrix LinA::operator*(LinA::Matrix lhs, LinA::Matrix rhs)
 {
 	if (lhs.n == rhs.m)
@@ -110,7 +108,6 @@ LinA::Matrix LinA::operator*(LinA::Matrix lhs, LinA::Matrix rhs)
 	}
 	return LinA::Matrix();
 }
-
 LinA::Matrix LinA::operator*(LinA::Matrix lhs, float rhs)
 {
 	for (auto& vec : lhs.A)
@@ -122,7 +119,6 @@ LinA::Matrix LinA::operator*(LinA::Matrix lhs, float rhs)
 	}
 	return lhs;
 }
-
 LinA::Matrix LinA::operator-(LinA::Matrix lhs, LinA::Matrix rhs)
 {
 	assert(lhs.A.size() == rhs.A.size());
@@ -137,7 +133,6 @@ LinA::Matrix LinA::operator-(LinA::Matrix lhs, LinA::Matrix rhs)
 	return lhs;
 	return Matrix();
 }
-
 LinA::Matrix LinA::operator+(LinA::Matrix lhs, LinA::Matrix rhs)
 {
 	assert(lhs.A.size() == rhs.A.size());
@@ -170,7 +165,6 @@ LinA::Matrix LinA::Transpose(const Matrix& A)
 	}
 	return A_T;
 }
-
 void LinA::RowOp(LinA::Matrix& A,float multiplier, int subtract, int into)
 {
 	std::transform(A.A[into - 1].begin(), A.A[into - 1].end(),			// transform this row (elimination)
@@ -181,12 +175,10 @@ void LinA::RowOp(LinA::Matrix& A,float multiplier, int subtract, int into)
 		});
 
 }
-
 void LinA::RowExchange(LinA::Matrix& A, int row1, int row2)
 {
 	std::swap(A.A[row1 - 1], A.A[row2 - 1]);
 }
-
 std::pair<LinA::Matrix, LinA::Matrix> LinA::RowReduce(Matrix& A, int col)
 {
 	LinA::Matrix E_rowexch = LinA::Eye(A.m);
@@ -210,25 +202,61 @@ std::pair<LinA::Matrix, LinA::Matrix> LinA::RowReduce(Matrix& A, int col)
 			if ( abs(A.A[i][col - 1]) > LinA::accuracy)
 			{
 				float m = A.A[i][col - 1] / A.A[col - 1][col - 1];
-				std::cout << "m=" << m << ", ";
+				//std::cout << "m=" << m << ", ";
 				RowOp(A,m, col, (int)i + 1);
 				E_rowmult.A[i][(int)col - 1] = -m;
 			}
 		}
 		E_rowmult_inv = InverseEliminationMatrix(E_rowmult);
 	}
-	return { E_rowmult*E_rowexch,E_rowexch_inv*E_rowmult_inv };
+	return { E_rowmult*E_rowexch , E_rowexch_inv*E_rowmult_inv };
 }
+std::pair<LinA::Matrix, LinA::Matrix> LinA::RowReduceUp(Matrix& A, int col)
+{
+	assert(A.m == A.n);
+	LinA::Matrix E_rowexch = LinA::Eye(A.m);
+	LinA::Matrix E_rowexch_inv = LinA::Eye(A.m);
+	//if (col == A.n) return { E_rowexch,E_rowexch_inv };
+	int rowrunner = col - 2;
+	while (abs(A.A[col - 1][col - 1]) < LinA::accuracy && rowrunner >= 0 )
+	{
+		assert(false);
+		//LinA::RowExchange(A, col, rowrunner);
+		//LinA::RowExchange(E_rowexch, col, rowrunner);
+		//LinA::RowExchange(E_rowexch_inv, col, rowrunner);
+		//rowrunner++;
+	}
 
+	LinA::Matrix E_rowmult = LinA::Eye(A.m);
+	LinA::Matrix E_rowmult_inv = LinA::Eye(A.m);
+	if (abs(A.A[col - 1][col - 1]) > LinA::accuracy)//&& abs(A.A[col][col-1]) > LinA::accuracy) // pivot value acceptable
+	{
+		for (int i = col-2; i >=0; i--)
+		{
+			if (abs(A.A[i][col - 1]) > LinA::accuracy)
+			{
+				float m = A.A[i][col - 1] / A.A[col - 1][col - 1];
+				//std::cout << "m=" << m << ", ";
+				RowOp(A, m, col, (int)i+1 );
+				E_rowmult.A[i][(int)col - 1] = -m;
+			}
+		}
+		E_rowmult_inv = InverseEliminationMatrix(E_rowmult);
+	}
+	//std::cout << E_rowmult * E_rowexch;
+	//std::cout << E_rowexch_inv * E_rowmult_inv;
+	return { E_rowmult * E_rowexch,E_rowexch_inv * E_rowmult_inv };
+}
 LinA::Matrix LinA::InverseEliminationMatrix(const Matrix& E)
 {
+	assert(E.m == E.n);
 	LinA::Matrix E_inv(E);
 	for (size_t i = 1; i <= E.m; i++)
 	{
-		for (size_t j = 1; j < i; j++)
+		for (size_t j = 1; j <= E.n; j++)
 		{
-			float entry = E_inv.A[i - 1][j - 1];
-			if (std::abs(entry) > 1e-4)
+			//float entry = E_inv.A[i - 1][j - 1];
+			if (std::abs(E_inv.A[i - 1][j - 1]) > 1e-4 && i!=j)
 			{
 				E_inv.A[i - 1][j - 1] = -E_inv.A[i - 1][j - 1];
 			}
@@ -236,7 +264,6 @@ LinA::Matrix LinA::InverseEliminationMatrix(const Matrix& E)
 	}
 	return E_inv;
 }
-
 std::pair<LinA::Matrix, int> LinA::FixLowTriangular(const Matrix& E)
 {
 	int n = 0;
@@ -251,34 +278,6 @@ std::pair<LinA::Matrix, int> LinA::FixLowTriangular(const Matrix& E)
 	}
 	return std::pair<Matrix, int>(E_cpy,n);
 }
-
-float LinA::DetOfTriangular(const Matrix& E)
-{
-	if (E.n == E.m)
-	{
-		//check if triangular...
-		float det = 1.f;
-		for (size_t i = 1; i <= E.n; i++)
-		{
-			det *= E.A[i - 1][i - 1];
-		}
-		return det;
-	}
-	assert(false);
-	return -9999;
-}
-
-std::pair<LinA::Matrix, LinA::Matrix> LinA::ProjectVec(LinA::Matrix b, LinA::Matrix a) // project vector b onto vector a, returns { p , e }  
-{
-	assert(a.n == 1 && b.n == 1);
-	assert(a.m == b.m);
-	LinA::Matrix aT = Transpose(a);
-	float x_hat = (aT * b).A[0][0] / (aT * a).A[0][0];
-	LinA::Matrix p = a * x_hat;
-	LinA::Matrix e = b - p;
-	return { p,e };
-}
-
 LinA::Matrix LinA::GetColumn(const LinA::Matrix& A, int n)
 {
 	assert(A.A.size() > 0);
@@ -291,6 +290,28 @@ LinA::Matrix LinA::GetColumn(const LinA::Matrix& A, int n)
 	}
 	return col;
 }
+void LinA::ReplaceColumn(LinA::Matrix& A, const LinA::Matrix& sourceCol, int n)
+{
+	assert(A.m == sourceCol.m);
+	assert(n <= A.n);
+	for (size_t col = 0; col < A.m; col++)
+	{
+		A.A[col][n - 1] = sourceCol.A[col][0];
+	}
+}
+
+
+std::pair<LinA::Matrix, LinA::Matrix> LinA::ProjectVec(LinA::Matrix b, LinA::Matrix a) // project vector b onto vector a, returns { p , e }  
+{
+	assert(a.n == 1 && b.n == 1);
+	assert(a.m == b.m);
+	LinA::Matrix aT = Transpose(a);
+	float x_hat = (aT * b).A[0][0] / (aT * a).A[0][0];
+	LinA::Matrix p = a * x_hat;
+	LinA::Matrix e = b - p;
+	return { p,e };
+}
+
 float LinA::VecNorm_L2(LinA::Matrix vec)
 {
 	assert(vec.m == 1 || vec.n == 1);
@@ -304,15 +325,7 @@ float LinA::VecNorm_L2(LinA::Matrix vec)
 	}
 	return -1;
 }
-void LinA::ReplaceColumn(LinA::Matrix& A, const LinA::Matrix& sourceCol, int n)
-{
-	assert(A.m == sourceCol.m);
-	assert(n <= A.n);
-	for (size_t col = 0; col < A.m; col++)
-	{
-		A.A[col][n - 1] = sourceCol.A[col][0];
-	}
-}
+
 std::pair<LinA::Matrix, LinA::Matrix> LinA::QR(LinA::Matrix A)
 {
 	assert(A.m == A.n);
@@ -336,7 +349,6 @@ std::pair<LinA::Matrix, LinA::Matrix> LinA::QR(LinA::Matrix A)
 	return { Q,R };
 
 }
-
 LinA::Matrix LinA::Eig(LinA::Matrix A, float precision)
 {
 	assert(A.m == A.n);
@@ -366,6 +378,68 @@ LinA::Matrix LinA::Eig(LinA::Matrix A, float precision)
 	std::cout << "Eigenvalue caluclation useing "<< count << " QR iterations to reach precision " << precision << "\n";
 	return eig;
 }
+std::pair<LinA::Matrix,LinA::Matrix> LinA::LU(LinA::Matrix A, bool printLU )
+{
+	LinA::Matrix A_cpy = A;
+	std::vector<LinA::Matrix> vecE; // elimination matrices container
+	std::vector<LinA::Matrix> vecE_inverse;
+	
+	for (int i = 1; i <= A.m; i++)
+	{
+		std::pair<LinA::Matrix, LinA::Matrix> E_i = RowReduce(A, i);
+		vecE.push_back(E_i.first);
+		vecE_inverse.push_back(E_i.second);
+		//std::cout << E_i.first;
+	}
+
+	LinA::Matrix L = LinA::Eye(A.n);
+	LinA::Matrix U = A;// _cpy;
+	
+	for (auto it = vecE_inverse.rbegin(); it != vecE_inverse.rend(); ++it)
+	{
+		//std::cout << "Multipltying " << *it;
+		L = *it * L;
+	}
+	//for (auto it = vecE_inverse.rbegin(); it != vecE_inverse.rend(); ++it)
+	//{
+	//	//std::cout << "Multipltying " << *it;
+	//	U = *it * U;
+	//}
+	if (printLU)
+	{
+		std::cout << "L\n" << L;
+		std::cout << "U\n" << U;
+	}
+	std::cout << "contiuning with rref\n";
+	auto pair = LinA::RowReduceUp(U, 3);
+	//std::cout << U;
+	vecE.push_back(pair.first);
+	vecE_inverse.push_back(pair.second);
+
+	pair = LinA::RowReduceUp(U, 2);
+	//std::cout << U;
+	vecE.push_back(pair.first);
+	vecE_inverse.push_back(pair.second);
+
+	LinA::Matrix S = LinA::Eye(3);
+	S.A[0][0] = 1 / U.A[0][0];
+	S.A[1][1] = 1 / U.A[1][1];
+	S.A[2][2] = 1 / U.A[2][2];
+
+	LinA::Matrix A_inv = LinA::Eye(3);
+	for (auto m : vecE)
+	{
+		A_inv = m * A_inv;
+	}
+	std::cout << S*A_inv;
+
+	std::cout << "A * A_inv = " << A_cpy * S * A_inv;
+	std::cout << "A_inv * A = " << S * A_inv * A_cpy;
+
+	return { L,U };
+}
+
+
 
 LinA::Matrix LinA::SingularValues(LinA::Matrix A, float precision)
 {
@@ -378,4 +452,30 @@ LinA::Matrix LinA::SingularValues(LinA::Matrix A, float precision)
 		Sigma.A[i][i] = sqrt(v.A[i][0]);
 	}
 	return Sigma;
+}
+float LinA::Det(const Matrix& A)
+{
+	auto LUpair = LU(A, false);
+	float DetU = LinA::DetOfTriangular(LUpair.second);
+	std::pair<LinA::Matrix, int> L_fixedPair = LinA::FixLowTriangular(LUpair.first);
+	float DetL = LinA::DetOfTriangular(L_fixedPair.first) * (1 + L_fixedPair.second % 2 * -2);
+	std::cout << "Determinant of U = " << DetU << std::endl;
+	std::cout << "Determinant of L = " << DetL << std::endl;
+	std::cout << "Determinant of A = |LU| = |L||U| = " << DetL * DetU << std::endl;
+	return DetL* DetU;
+}
+float LinA::DetOfTriangular(const Matrix& E)
+{
+	if (E.n == E.m)
+	{
+		//check if triangular...
+		float det = 1.f;
+		for (size_t i = 1; i <= E.n; i++)
+		{
+			det *= E.A[i - 1][i - 1];
+		}
+		return det;
+	}
+	assert(false);
+	return -9999;
 }
