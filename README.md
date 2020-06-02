@@ -18,7 +18,7 @@ Working on:
 
 Some examples:
 
-![QR example](QR_iteration_demo.png)
+![QR example](QR_iter_demo.png)
 
 Interface & free functions semantics for LinA class:
 ```cpp
