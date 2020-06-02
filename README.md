@@ -19,6 +19,7 @@ Working on:
 * ...
 
 Some examples:
+
 ![Tests](LinAlg_tests.png)
 
 Interface & free functions semantics for LinA class:
