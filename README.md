@@ -1,5 +1,6 @@
 # LinearAlgebra (Work-in-Progress)
-Own implementation of Matrix class and LinAlg algos, dev while following Gilbert Strang's 18.06 / 18.065
+Own implementation of Matrix class and numerical LinAlg algos, dev while following Gilbert Strang's 18.06 / 18.065.
+(Numerical Linear Algebra by Trefethen/Bau as main reference)
 
 Implemented so far:
 * Basic Matrix & Vector operations
@@ -8,17 +9,18 @@ Implemented so far:
 * Eigenvalue calculation using QR iteration (no Hessenberg reduction / shifts yet)
 
 Working on:
+* Inverse (Gauss/Jordan)
 * Krylov/GMRES for Ax=b
 * Eigenvectors
 * Diagonalization
-* SVD
+* Full SVD
 * Pseudoinverse
 * Vector & Matrix norms
 * ...
 
 Some examples:
 
-![QR example](QR_iteration_demo.png)
+![QR example](QR_iter_demo.png)
 
 Interface & free functions semantics for LinA class:
 ```cpp
