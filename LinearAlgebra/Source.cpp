@@ -9,7 +9,8 @@ void test()
 	{
 		//LinA::Matrix A(" 1  1 1 ; 1 1 2 ; -1 1 3 ");
 		//LinA::Matrix A(" 1 4 -1 ; -2 1 1 ; -12 4 5 ");
-		LinA::Matrix A(" 1 2 3 ; 3 4 3 ; 1 -1 1 ");
+		//LinA::Matrix A(" 1 2 3 ; 3 4 3 ; 1 -1 1 ");
+		LinA::Matrix A(" 1  1 1 ; 1 1 2 ; 2 2 4 ");
 
 		LinA::Matrix AT;
 		AT = LinA::Transpose(A);
@@ -79,96 +80,6 @@ void test()
 	std::cin.get();
 }
 
-std::pair<LinA::Matrix,LinA::Matrix> ProjectVec(LinA::Matrix b, LinA::Matrix a) // project vector b onto vector a, returns { p , e }  
-{
-	assert(a.n == 1 && b.n == 1);
-	assert(a.m == b.m);
-	LinA::Matrix aT = Transpose(a);
-	float x_hat = (aT * b).A[0][0] / (aT * a).A[0][0];
-	LinA::Matrix p = a * x_hat;
-	LinA::Matrix e = b-p;
-	return { p,e };
-}
-
-LinA::Matrix GetColumn(const LinA::Matrix& A, int n)
-{
-	assert(A.A.size() > 0);
-	assert(A.A[0].size() > 0);
-	assert(A.n >= n);
-	LinA::Matrix col(A.m, 1, 0);
-	for (size_t row = 0; row < A.m; row++)
-	{
-		col.A[row][0] = A.A[row][n-1];
-	}
-	return col;
-}
-float VecNorm_L2(LinA::Matrix vec)
-{
-	assert(vec.m == 1 || vec.n == 1);
-	if (vec.n == 1)
-	{
-		return sqrt((Transpose(vec)*vec).A[0][0]);
-	}
-	if (vec.m == 1)
-	{
-		return sqrt((vec * Transpose(vec)).A[0][0]);
-	}
-	return -1;
-}
-void ReplaceColumn(LinA::Matrix& A, const LinA::Matrix& sourceCol, int n)
-{
-	assert(A.m == sourceCol.m);
-	assert(n <= A.n);
-	for (size_t col = 0; col < A.m; col++)
-	{
-		A.A[col][n - 1] = sourceCol.A[col][0];
-	}
-}
-std::pair<LinA::Matrix, LinA::Matrix> QR(LinA::Matrix A)
-{
-	assert(A.m == A.n);
-	assert(A.m > 1);
-	LinA::Matrix Q(A.m, A.n, 0);
-	LinA::Matrix col0 = GetColumn(A, 1);
-	col0 = col0 * (1 / VecNorm_L2(col0));
-	ReplaceColumn(Q, col0, 1);
-	for (int i = 2; i <= A.n; i++)
-	{
-		LinA::Matrix Ai = GetColumn(A, i);
-		for (int j = 1; j < i;j++)
-		{
-			LinA::Matrix Qj = GetColumn(Q, j);
-			Ai = Ai - Qj * (Transpose(Ai) * Qj);
-		}
-		Ai = Ai * (1 / VecNorm_L2(Ai));
-		ReplaceColumn(Q, Ai, i);
-	}
-	LinA::Matrix R = Transpose(Q) * A;
-	return { Q,R };
-
-}
-
-LinA::Matrix Eig(LinA::Matrix A, float accuracy)
-{
-	assert(A.m == A.n);
-	while (true)
-	{
-		auto Fi = QR(A);
-		LinA::Matrix Qi = Fi.first;
-		LinA::Matrix Ri = Fi.second;
-		LinA::Matrix Aip = Ri * Qi;
-		float eps1 = A.A[0][0] - Aip.A[0][0];
-		A = Aip;
-		if (abs(eps1) < 1e-5) break;
-	}
-	LinA::Matrix eig(A.m, 1,0);
-	for (size_t i = 0; i < A.m; i++)
-	{
-		eig.A[i][0] = A.A[i][i];
-	}
-	std::cout << "Eigenvalues: \n" << eig;
-	return eig;
-}
 
 int main()
 {
@@ -183,14 +94,14 @@ int main()
 	std::cout << "A: \n" << A;
 	std::cout << "Q: \n" << g.first;
 	std::cout << "R: \n" << g.second;
+
+	std::cout << "\nEigenvalues of A:\n";
+	auto e = Eig(A,1e-3);
+	std::cout << e;
+
+	std::cout << "\nSingular values of A (sqrt of eigenvalues of At * A):\n";
+	auto s = LinA::SingularValues(A, 1e-3);
+	std::cout << "Sigma: \n" << s;
+
 	std::cin.get();
-
-	auto e = Eig(A,1e-5);
-	std::cin.get();
-	
-
-	std::cin.get();
-
-
-
 }

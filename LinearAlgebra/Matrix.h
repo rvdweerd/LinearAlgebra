@@ -35,6 +35,16 @@ namespace LinA
 	Matrix InverseEliminationMatrix(const Matrix& E);
 	std::pair<Matrix, int> FixLowTriangular(const Matrix& E);
 	float DetOfTriangular(const Matrix& E);
+
+	std::pair<Matrix, Matrix> ProjectVec(Matrix b, Matrix a);
+	Matrix GetColumn(const Matrix& A, int n);
+	float VecNorm_L2(Matrix vec);
+	void ReplaceColumn(Matrix& A, const Matrix& sourceCol, int n);
+	std::pair<Matrix, Matrix> QR(Matrix A);
+	Matrix Eig(Matrix A, float precision);
+
+	Matrix SingularValues(Matrix A, float precision);
+
 }
 
 

@@ -70,7 +70,7 @@ LinA::Matrix LinA::Eye(int n)
 
 std::ostream& LinA::operator<<(std::ostream& stream, LinA::Matrix A)
 {
-	stream.precision(3);
+	stream.precision(4);
 	stream << '\n';
 	for (size_t row = 0; row < A.m; row++)
 	{
@@ -268,3 +268,114 @@ float LinA::DetOfTriangular(const Matrix& E)
 	return -9999;
 }
 
+std::pair<LinA::Matrix, LinA::Matrix> LinA::ProjectVec(LinA::Matrix b, LinA::Matrix a) // project vector b onto vector a, returns { p , e }  
+{
+	assert(a.n == 1 && b.n == 1);
+	assert(a.m == b.m);
+	LinA::Matrix aT = Transpose(a);
+	float x_hat = (aT * b).A[0][0] / (aT * a).A[0][0];
+	LinA::Matrix p = a * x_hat;
+	LinA::Matrix e = b - p;
+	return { p,e };
+}
+
+LinA::Matrix LinA::GetColumn(const LinA::Matrix& A, int n)
+{
+	assert(A.A.size() > 0);
+	assert(A.A[0].size() > 0);
+	assert(A.n >= n);
+	LinA::Matrix col(A.m, 1, 0);
+	for (size_t row = 0; row < A.m; row++)
+	{
+		col.A[row][0] = A.A[row][n - 1];
+	}
+	return col;
+}
+float LinA::VecNorm_L2(LinA::Matrix vec)
+{
+	assert(vec.m == 1 || vec.n == 1);
+	if (vec.n == 1)
+	{
+		return sqrt((Transpose(vec) * vec).A[0][0]);
+	}
+	if (vec.m == 1)
+	{
+		return sqrt((vec * Transpose(vec)).A[0][0]);
+	}
+	return -1;
+}
+void LinA::ReplaceColumn(LinA::Matrix& A, const LinA::Matrix& sourceCol, int n)
+{
+	assert(A.m == sourceCol.m);
+	assert(n <= A.n);
+	for (size_t col = 0; col < A.m; col++)
+	{
+		A.A[col][n - 1] = sourceCol.A[col][0];
+	}
+}
+std::pair<LinA::Matrix, LinA::Matrix> LinA::QR(LinA::Matrix A)
+{
+	assert(A.m == A.n);
+	assert(A.m > 1);
+	LinA::Matrix Q(A.m, A.n, 0);
+	LinA::Matrix col0 = GetColumn(A, 1);
+	col0 = col0 * (1 / VecNorm_L2(col0));
+	ReplaceColumn(Q, col0, 1);
+	for (int i = 2; i <= A.n; i++)
+	{
+		LinA::Matrix Ai = GetColumn(A, i);
+		for (int j = 1; j < i; j++)
+		{
+			LinA::Matrix Qj = GetColumn(Q, j);
+			Ai = Ai - Qj * (Transpose(Ai) * Qj);
+		}
+		Ai = Ai * (1 / VecNorm_L2(Ai));
+		ReplaceColumn(Q, Ai, i);
+	}
+	LinA::Matrix R = Transpose(Q) * A;
+	return { Q,R };
+
+}
+
+LinA::Matrix LinA::Eig(LinA::Matrix A, float precision)
+{
+	assert(A.m == A.n);
+	int count = 0;
+	while (true)
+	{
+		auto Fi = QR(A);
+		LinA::Matrix Qi = Fi.first;
+		LinA::Matrix Ri = Fi.second;
+		LinA::Matrix Aip = Ri * Qi;
+		float eps = 0.f;
+		for (size_t i = 0; i < A.n; i++)
+		{
+			eps = std::max(eps,abs(A.A[i][i] - Aip.A[i][i]));
+		}
+		
+		A = Aip;
+		count++;
+		if (eps < precision) break;
+	}
+	LinA::Matrix eig(A.m, 1, 0);
+	for (size_t i = 0; i < A.m; i++)
+	{
+		eig.A[i][0] = A.A[i][i];
+	}
+	//std::cout << "Eigenvalues: \n" << eig;
+	std::cout << "Eigenvalue caluclation useing "<< count << " QR iterations to reach precision " << precision << "\n";
+	return eig;
+}
+
+LinA::Matrix LinA::SingularValues(LinA::Matrix A, float precision)
+{
+	// Estimates singular values based on eigenvalues of (At * A)
+	assert(A.m == A.n);
+	auto v = Eig(LinA::Transpose(A) * A, 1e-3);
+	LinA::Matrix Sigma = LinA::Eye(A.n);
+	for (size_t i = 0; i < v.m; i++)
+	{
+		Sigma.A[i][i] = sqrt(v.A[i][0]);
+	}
+	return Sigma;
+}
