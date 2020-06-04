@@ -7,6 +7,7 @@ Implemented so far:
 * LU decomposition
 * QR decomposition
 * Eigenvalue calculation using QR iteration (no Hessenberg reduction / shifts yet)
+* Singular values calculation (naive through evals of At\*A)
 * Inverse (Gauss/Jordan)
 
 Working on:
