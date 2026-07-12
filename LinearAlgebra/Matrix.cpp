@@ -1,5 +1,4 @@
 #include "Matrix.h"
-#include <strstream>
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
@@ -8,10 +7,12 @@
 #include <iterator>
 #include <cassert>
 #include <tuple>
+#include <cmath>
+#include <sstream>
 
 LinA::Matrix::Matrix(std::string str)
 {
-	std::istrstream stream_in(str.c_str());
+	std::istringstream stream_in(str);
 	std::string s;
 	size_t x = 0;
 	size_t y = 0;
@@ -30,7 +31,7 @@ LinA::Matrix::Matrix(std::string str)
 		{ }
 		else
 		{
-			std::istrstream sub(s.c_str());
+			std::istringstream sub(s);
 			float f;
 			sub >> f;
 			row.push_back(f);
@@ -324,11 +325,11 @@ float LinA::VecNorm_L2(LinA::Matrix vec)
 	assert(vec.m == 1 || vec.n == 1);
 	if (vec.n == 1)
 	{
-		return sqrt((Transpose(vec) * vec).A[0][0]);
+		return std::sqrt((Transpose(vec) * vec).A[0][0]);
 	}
 	if (vec.m == 1)
 	{
-		return sqrt((vec * Transpose(vec)).A[0][0]);
+		return std::sqrt((vec * Transpose(vec)).A[0][0]);
 	}
 	return -1;
 }
@@ -369,7 +370,7 @@ LinA::Matrix LinA::Eig(LinA::Matrix A, float precision)
 		float eps = 0.f;
 		for (size_t i = 0; i < A.n; i++)
 		{
-			eps = std::max(eps,abs(A.A[i][i] - Aip.A[i][i]));
+			eps = std::max(eps, std::fabs(A.A[i][i] - Aip.A[i][i]));
 		}
 		
 		A = Aip;
@@ -453,11 +454,11 @@ LinA::Matrix LinA::SingularValues(LinA::Matrix A, float precision)
 {
 	// Estimates singular values based on eigenvalues of (At * A)
 	assert(A.m == A.n);
-	auto v = Eig(LinA::Transpose(A) * A, 1e-3);
+	auto v = Eig(LinA::Transpose(A) * A, precision);
 	LinA::Matrix Sigma = LinA::Eye(A.n);
 	for (size_t i = 0; i < v.m; i++)
 	{
-		Sigma.A[i][i] = sqrt(v.A[i][0]);
+		Sigma.A[i][i] = std::sqrt(v.A[i][0]);
 	}
 	return Sigma;
 }

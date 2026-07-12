@@ -2,6 +2,22 @@
 Own implementation of Matrix class and numerical LinAlg algos, dev while following Gilbert Strang's 18.06 / 18.065.
 (Numerical Linear Algebra by Trefethen/Bau as main reference)
 
+Build instructions:
+
+Linux:
+```bash
+cmake -S . -B build
+cmake --build build -j2
+./build/LinearAlgebra
+```
+
+Windows:
+Open `LinearAlgebra.sln` in Visual Studio and build the `LinearAlgebra` project, or use a Developer Command Prompt:
+```bat
+cmake -S . -B build
+cmake --build build --config Debug
+```
+
 Implemented so far:
 * Basic Matrix & Vector operations
 * LU decomposition
