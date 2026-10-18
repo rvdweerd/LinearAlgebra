@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug LinearAlgebra",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/LinearAlgebra",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "CMake: configure and build Debug",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "stopAtEntry": false,
+
+            "environment": [
+                {
+                    "name": "DEBUGINFOD_URLS",
+                    "value": ""
+                }
+            ],
+
+            "setupCommands": [
+                {
+                    "text": "set debuginfod enabled off"
+                },
+                {
+                    "text": "set debuginfod urls"
+                }
+            ]
+        }
+    ]
+}

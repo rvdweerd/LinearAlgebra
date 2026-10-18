@@ -15,7 +15,7 @@ namespace Tests
 		std::cout << "\nEigenvalues of A:\n";
 		auto evals = Eig(A, 1e-3);
 		std::cout << evals;
-		std::cin.get();
+		//std::cin.get();
 	}
 	void TestSingularValues(const LinA::Matrix& A)
 	{
@@ -26,7 +26,7 @@ namespace Tests
 		std::cout << "\nSingular values of A (sqrt of eigenvalues of At * A):\n";
 		auto svals = LinA::SingularValues(A, 1e-3);
 		std::cout << "Sigma: \n" << svals;
-		std::cin.get();
+		//std::cin.get();
 	}
 	void TestVectorProjections()
 	{
@@ -40,7 +40,7 @@ namespace Tests
 		auto pair = ProjectVec(b, a);
 		std::cout << "pT (projection of b onto a):\n" << LinA::Transpose(pair.first);
 		std::cout << "eT (error vector e = b - p):\n" << LinA::Transpose(pair.second);
-		std::cin.get();
+		//std::cin.get();
 	}
 	void TestQR(LinA::Matrix A)
 	{
@@ -53,7 +53,7 @@ namespace Tests
 		std::cout << "Q: \n" << qr.first;
 		std::cout << "R: \n" << qr.second;
 		std::cout << "Q*R: \n" << qr.first * qr.second;
-		std::cin.get();
+		//std::cin.get();
 	}
 	void TestLU(LinA::Matrix A)
 	{
@@ -67,7 +67,7 @@ namespace Tests
 		std::cout << "L: \n" << L;
 		std::cout << "U: \n" << U;
 		std::cout << "L*U: \n" << L * U;
-		std::cin.get();
+		//std::cin.get();
 	}
 
 	void TestInverse(const LinA::Matrix& A)
@@ -80,7 +80,7 @@ namespace Tests
 		std::cout << "inv(A):\n" << Ainv;
 		std::cout << "A*inv(A):" << A * Ainv;
 		std::cout << "inv(A)*A:" << Ainv * A;
-		std::cin.get();
+		//std::cin.get();
 	}
 	void TestRREF(const LinA::Matrix& A)
 	{
@@ -94,6 +94,6 @@ namespace Tests
 		std::cout << Rref;
 		std::cout << "Elimination matrix E ( = inv(A) when A is invertible):\n";
 		std::cout << Elim;
-		std::cin.get();
+		//std::cin.get();
 	}
 }
